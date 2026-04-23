@@ -82,7 +82,11 @@ if (seed.includes("전립선")) {
 window.search = function () {
   const q = document.getElementById("q").value;
   let keywords = generateKeywords(q);
-
+document.getElementById("q").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    search();
+  }
+});
   // 정렬
   if (document.getElementById("sortCheck").checked) {
     keywords.sort((a, b) => b.score - a.score);
