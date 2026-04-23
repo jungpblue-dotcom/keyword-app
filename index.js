@@ -61,11 +61,13 @@ function generateKeywords(seed) {
     ].map(makeResult);
   }
 
-  return [
-    `${seed} 자주 마려운 이유`,
-    `${seed} 계속 마려운 이유`,
-    `${seed} 방치하면 생기는 문제`
-  ].map(makeResult);
+ return [
+  `${seed} 자주 보는 이유`,
+  `${seed} 자주 마려운 이유`,
+  `${seed} 계속 마려운 이유`,
+  `${seed} 방치하면 생기는 위험`,
+  `${seed} 증상과 원인`
+].map(makeResult);
 }
 
 // 검색 실행
