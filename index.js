@@ -16,19 +16,25 @@ document.body.innerHTML = `
   </div>
 `;
 
+// 👉 엔터 실행 (여기 위치가 중요)
+document.getElementById("q").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    search();
+  }
+});
+
 // 점수 계산
 function makeResult(k) {
   let score = 0;
 
   if (k.includes("증상")) score += 4;
   if (k.includes("초기")) score += 3;
-  if (k.includes("수치")) score += 3;
   if (k.includes("식단")) score += 3;
   if (k.includes("관리")) score += 2;
 
   if (k.includes("이유") || k.includes("문제")) score += 4;
-  if (k.includes("자주") || k.includes("갑자기") || k.includes("밤")) score += 3;
-  if (k.includes("위험") || k.includes("병")) score += 4;
+  if (k.includes("자주") || k.includes("갑자기")) score += 3;
+  if (k.includes("위험")) score += 4;
 
   if (k.length >= 12) score += 2;
 
@@ -41,13 +47,23 @@ function makeResult(k) {
 
 // 키워드 생성
 function generateKeywords(seed) {
+
+  if (seed.includes("전립선")) {
+    return [
+      "전립선 비대증 증상",
+      "전립선 자주 소변 보는 이유",
+      "전립선 비대증 치료 방법",
+      "전립선 방치하면 생기는 문제",
+      "전립선 초기 증상"
+    ].map(makeResult);
+  }
+
   if (seed.includes("치매")) {
     return [
       "치매 초기 증상",
       "치매 진행 속도 무서운 이유",
       "치매 예방 방법",
-      "치매 검사 비용",
-      "치매 환자 행동 변화"
+      "치매 검사 비용"
     ].map(makeResult);
   }
 
@@ -56,38 +72,23 @@ function generateKeywords(seed) {
       "당뇨 초기 증상",
       "당뇨 갈증 심한 이유",
       "당뇨 방치하면 위험한 이유",
-      "당뇨 수치 낮추는 방법",
-      "당뇨 식단 관리 방법"
+      "당뇨 수치 낮추는 방법"
     ].map(makeResult);
   }
 
- return [
-  `${seed} 자주 보는 이유`,
-  `${seed} 자주 마려운 이유`,
-  `${seed} 계속 마려운 이유`,
-  `${seed} 방치하면 생기는 위험`,
-  `${seed} 증상과 원인`
-].map(makeResult);
-}
-if (seed.includes("전립선")) {
   return [
-    "전립선 비대증 증상",
-    "전립선 자주 소변 보는 이유",
-    "전립선 비대증 치료 방법",
-    "전립선 방치하면 생기는 문제",
-    "전립선 초기 증상"
+    `${seed} 증상`,
+    `${seed} 원인`,
+    `${seed} 치료 방법`,
+    `${seed} 방치하면 위험`
   ].map(makeResult);
 }
+
 // 검색 실행
 window.search = function () {
   const q = document.getElementById("q").value;
   let keywords = generateKeywords(q);
-document.getElementById("q").addEventListener("keypress", function(e) {
-  if (e.key === "Enter") {
-    search();
-  }
-});
-  // 정렬
+
   if (document.getElementById("sortCheck").checked) {
     keywords.sort((a, b) => b.score - a.score);
   }
@@ -107,7 +108,7 @@ document.getElementById("q").addEventListener("keypress", function(e) {
   document.getElementById("result").innerHTML = html;
 };
 
-// 개별 복사
+// 복사
 window.copyText = function (text) {
   navigator.clipboard.writeText(text);
   alert("복사됨: " + text);
