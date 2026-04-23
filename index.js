@@ -1,15 +1,22 @@
 document.body.innerHTML = `
-  <div style="font-family:sans-serif; max-width:600px; margin:auto; padding:20px;">
+  <div style="font-family:sans-serif; max-width:700px; margin:auto; padding:20px;">
     <h2>💰 키워드 생성기</h2>
 
-    <input id="q" placeholder="예: 치매" style="padding:10px; width:70%;" />
+    <input id="q" placeholder="예: 치매" style="padding:10px; width:60%;" />
     <button onclick="search()" style="padding:10px;">분석</button>
+    <button onclick="copyAll()" style="padding:10px;">전체 복사</button>
+
+    <div style="margin-top:10px;">
+      <label>
+        <input type="checkbox" id="sortCheck" /> 점수 높은 순 정렬
+      </label>
+    </div>
 
     <div id="result" style="margin-top:20px;"></div>
   </div>
 `;
 
-// 🔥 점수 계산 함수
+// 점수 계산
 function makeResult(k) {
   let score = 0;
 
@@ -23,8 +30,6 @@ function makeResult(k) {
   if (k.includes("자주") || k.includes("갑자기") || k.includes("밤")) score += 3;
   if (k.includes("위험") || k.includes("병")) score += 4;
 
-  if (k.includes("갈증") || k.includes("피로") || k.includes("체중")) score += 3;
-
   if (k.length >= 12) score += 2;
 
   let tag = "일반 키워드";
@@ -34,9 +39,8 @@ function makeResult(k) {
   return { keyword: k, score, tag };
 }
 
-// 🔥 키워드 생성
+// 키워드 생성
 function generateKeywords(seed) {
-
   if (seed.includes("치매")) {
     return [
       "치매 초기 증상",
@@ -57,48 +61,53 @@ function generateKeywords(seed) {
     ].map(makeResult);
   }
 
-  if (seed.includes("혈압")) {
-    return [
-      "고혈압 증상",
-      "혈압 갑자기 올라가는 이유",
-      "혈압 낮추는 방법",
-      "혈압 높을 때 증상"
-    ].map(makeResult);
-  }
-
-  // 기본
-  const patterns = [
+  return [
     `${seed} 자주 마려운 이유`,
     `${seed} 계속 마려운 이유`,
     `${seed} 방치하면 생기는 문제`
-  ];
-
-  return patterns.map(makeResult);
+  ].map(makeResult);
 }
 
-// 🔥 실행 함수
+// 검색 실행
 window.search = function () {
   const q = document.getElementById("q").value;
-  const keywords = generateKeywords(q);
+  let keywords = generateKeywords(q);
 
-  let hot = "";
-  let normal = "";
+  // 정렬
+  if (document.getElementById("sortCheck").checked) {
+    keywords.sort((a, b) => b.score - a.score);
+  }
+
+  let html = "";
 
   keywords.forEach(k => {
-    const item = `<div style="border:1px solid #ddd; padding:10px; margin:10px 0;">
-      <b>${k.keyword}</b><br/>
-      👉 ${k.tag}<br/>
-      점수: ${k.score}
-    </div>`;
-
-    if (k.score >= 8) {
-      hot += item;
-    } else {
-      normal += item;
-    }
+    html += `
+      <div style="border:1px solid #ddd; padding:10px; margin:10px 0; border-radius:8px;">
+        <b>${k.keyword}</b><br/>
+        👉 ${k.tag} (점수: ${k.score})
+        <button onclick="copyText('${k.keyword}')" style="float:right;">복사</button>
+      </div>
+    `;
   });
 
-  document.getElementById("result").innerHTML =
-    "<h3>🔥 바로 써야 할 키워드</h3>" + hot +
-    "<h3>📌 참고 키워드</h3>" + normal;
+  document.getElementById("result").innerHTML = html;
+};
+
+// 개별 복사
+window.copyText = function (text) {
+  navigator.clipboard.writeText(text);
+  alert("복사됨: " + text);
+};
+
+// 전체 복사
+window.copyAll = function () {
+  const items = document.querySelectorAll("#result b");
+  let text = "";
+
+  items.forEach(i => {
+    text += i.innerText + "\n";
+  });
+
+  navigator.clipboard.writeText(text);
+  alert("전체 복사 완료");
 };
