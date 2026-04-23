@@ -69,7 +69,15 @@ function generateKeywords(seed) {
   `${seed} 증상과 원인`
 ].map(makeResult);
 }
-
+if (seed.includes("전립선")) {
+  return [
+    "전립선 비대증 증상",
+    "전립선 자주 소변 보는 이유",
+    "전립선 비대증 치료 방법",
+    "전립선 방치하면 생기는 문제",
+    "전립선 초기 증상"
+  ].map(makeResult);
+}
 // 검색 실행
 window.search = function () {
   const q = document.getElementById("q").value;
