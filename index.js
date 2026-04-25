@@ -85,13 +85,34 @@ function generateKeywords(seed) {
 }
 
 // 검색 실행
-window.search = function () {
+window.search = async function () {
   const q = document.getElementById("q").value;
-  let keywords = generateKeywords(q);
+
+  let baseKeywords = generateKeywords(q);
+  let autoKeywords = await getAutoKeywords(q);
+
+  let autoResults = autoKeywords.map(makeResult);
+
+  let keywords = [...baseKeywords, ...autoResults];
 
   if (document.getElementById("sortCheck").checked) {
     keywords.sort((a, b) => b.score - a.score);
   }
+
+  let html = "";
+
+  keywords.forEach(k => {
+    html += `
+      <div style="border:1px solid #ddd; padding:10px; margin:10px 0; border-radius:8px;">
+        <b>${k.keyword}</b><br/>
+        👉 ${k.tag} (점수: ${k.score})
+        <button onclick="copyText('${k.keyword}')" style="float:right;">복사</button>
+      </div>
+    `;
+  });
+
+  document.getElementById("result").innerHTML = html;
+};
 
   let html = "";
 
