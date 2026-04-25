@@ -16,24 +16,30 @@ document.body.innerHTML = `
   </div>
 `;
 
-// 👉 엔터 실행 (여기 위치가 중요)
+// 엔터 실행
 document.getElementById("q").addEventListener("keypress", function(e) {
-  if (e.key === "Enter") {
-    search();
-  }
+  if (e.key === "Enter") search();
 });
 
-// 점수 계산
+// 자동완성 (안정 버전)
+async function getAutoKeywords(seed) {
+  try {
+    const res = await fetch(`https://api.datamuse.com/words?ml=${seed}`);
+    const data = await res.json();
+    return data.slice(0, 5).map(d => d.word);
+  } catch {
+    return [];
+  }
+}
+
+// 점수
 function makeResult(k) {
   let score = 0;
 
   if (k.includes("증상")) score += 4;
   if (k.includes("초기")) score += 3;
-  if (k.includes("식단")) score += 3;
-  if (k.includes("관리")) score += 2;
-
-  if (k.includes("이유") || k.includes("문제")) score += 4;
-  if (k.includes("자주") || k.includes("갑자기")) score += 3;
+  if (k.includes("이유")) score += 4;
+  if (k.includes("방법")) score += 3;
   if (k.includes("위험")) score += 4;
 
   if (k.length >= 12) score += 2;
@@ -45,37 +51,8 @@ function makeResult(k) {
   return { keyword: k, score, tag };
 }
 
-// 키워드 생성
+// 기본 키워드
 function generateKeywords(seed) {
-
-  if (seed.includes("전립선")) {
-    return [
-      "전립선 비대증 증상",
-      "전립선 자주 소변 보는 이유",
-      "전립선 비대증 치료 방법",
-      "전립선 방치하면 생기는 문제",
-      "전립선 초기 증상"
-    ].map(makeResult);
-  }
-
-  if (seed.includes("치매")) {
-    return [
-      "치매 초기 증상",
-      "치매 진행 속도 무서운 이유",
-      "치매 예방 방법",
-      "치매 검사 비용"
-    ].map(makeResult);
-  }
-
-  if (seed.includes("당뇨")) {
-    return [
-      "당뇨 초기 증상",
-      "당뇨 갈증 심한 이유",
-      "당뇨 방치하면 위험한 이유",
-      "당뇨 수치 낮추는 방법"
-    ].map(makeResult);
-  }
-
   return [
     `${seed} 증상`,
     `${seed} 원인`,
@@ -84,16 +61,15 @@ function generateKeywords(seed) {
   ].map(makeResult);
 }
 
-// 검색 실행
+// 실행
 window.search = async function () {
   const q = document.getElementById("q").value;
 
-  let baseKeywords = generateKeywords(q);
-  let autoKeywords = await getAutoKeywords(q);
+  let base = generateKeywords(q);
+  let auto = await getAutoKeywords(q);
+  let autoResults = auto.map(makeResult);
 
-  let autoResults = autoKeywords.map(makeResult);
-
-  let keywords = [...baseKeywords, ...autoResults];
+  let keywords = [...base, ...autoResults];
 
   if (document.getElementById("sortCheck").checked) {
     keywords.sort((a, b) => b.score - a.score);
@@ -114,36 +90,15 @@ window.search = async function () {
   document.getElementById("result").innerHTML = html;
 };
 
-  let html = "";
-
-  keywords.forEach(k => {
-    html += `
-      <div style="border:1px solid #ddd; padding:10px; margin:10px 0; border-radius:8px;">
-        <b>${k.keyword}</b><br/>
-        👉 ${k.tag} (점수: ${k.score})
-        <button onclick="copyText('${k.keyword}')" style="float:right;">복사</button>
-      </div>
-    `;
-  });
-
-  document.getElementById("result").innerHTML = html;
-};
-
 // 복사
 window.copyText = function (text) {
   navigator.clipboard.writeText(text);
-  alert("복사됨: " + text);
 };
 
 // 전체 복사
 window.copyAll = function () {
   const items = document.querySelectorAll("#result b");
   let text = "";
-
-  items.forEach(i => {
-    text += i.innerText + "\n";
-  });
-
+  items.forEach(i => text += i.innerText + "\n");
   navigator.clipboard.writeText(text);
-  alert("전체 복사 완료");
 };
