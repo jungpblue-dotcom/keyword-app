@@ -53,13 +53,28 @@ function makeResult(k) {
 
 // 기본 키워드
 function generateKeywords(seed) {
-  return [
-    `${seed} 증상`,
-    `${seed} 원인`,
-    `${seed} 치료 방법`,
-    `${seed} 방치하면 위험`
-  ].map(makeResult);
+  let results = [];
+
+  if (!seed.includes("증상")) {
+    results.push(`${seed} 증상`);
+  }
+
+  if (!seed.includes("원인")) {
+    results.push(`${seed} 원인`);
+  }
+
+  if (!seed.includes("치료")) {
+    results.push(`${seed} 치료 방법`);
+  }
+
+  if (!seed.includes("위험")) {
+    results.push(`${seed} 방치하면 위험`);
+  }
+
+  return results.map(makeResult);
 }
+
+
 
 async function generatePost(keyword) {
   const apiKey = "여기에_API_KEY_넣기";
