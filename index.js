@@ -36,20 +36,35 @@ async function getAutoKeywords(seed) {
 function makeResult(k) {
   let score = 0;
 
+  // 🔥 강한 검색 의도
+  if (k.includes("초기")) score += 5;
   if (k.includes("증상")) score += 4;
-  if (k.includes("초기")) score += 3;
+  if (k.includes("원인")) score += 4;
   if (k.includes("이유")) score += 4;
-  if (k.includes("방법")) score += 3;
-  if (k.includes("위험")) score += 4;
 
-  if (k.length >= 12) score += 2;
+  // 🔥 행동 유도 (클릭 잘됨)
+  if (k.includes("방법")) score += 4;
+  if (k.includes("치료")) score += 4;
+  if (k.includes("해결")) score += 4;
+
+  // 🔥 공포/경고 (CTR 높음)
+  if (k.includes("위험")) score += 5;
+  if (k.includes("방치")) score += 5;
+  if (k.includes("무서운")) score += 5;
+
+  // 🔥 구체성
+  if (k.length >= 10) score += 2;
 
   let tag = "일반 키워드";
-  if (score >= 8) tag = "🟡🔥 황금 키워드";
-  else if (score >= 5) tag = "🟢 홈판 키워드";
+  if (score >= 9) tag = "🟡🔥 황금 키워드";
+  else if (score >= 6) tag = "🟢 홈판 키워드";
 
   return { keyword: k, score, tag };
 }
+
+
+
+
 
 // 기본 키워드
 function generateKeywords(seed) {
