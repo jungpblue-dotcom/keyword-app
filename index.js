@@ -61,6 +61,41 @@ function generateKeywords(seed) {
   ].map(makeResult);
 }
 
+async function generatePost(keyword) {
+  const apiKey = "여기에_API_KEY_넣기";
+
+  const prompt = `
+  블로그 글 작성
+
+  주제: ${keyword}
+
+  조건:
+  - 40~60대 대상
+  - 네이버 블로그 스타일
+  - 제목 3개
+  - 소제목 4개
+  - 본문 1500자
+  - 쉽게 설명
+  - 마지막에 행동 유도 문장 포함
+  `;
+
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + apiKey
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+
+  const data = await res.json();
+  return data.choices[0].message.content;
+}
+
+
 // 실행
 window.search = async function () {
   const q = document.getElementById("q").value;
