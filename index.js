@@ -3,7 +3,7 @@ document.body.innerHTML = `
     <h2>💰 키워드 생성기</h2>
 
     <input id="q" placeholder="예: 치매" style="padding:10px; width:60%;" />
-    <button onclick="search()" style="padding:10px;">분석</button>
+    <button onclick="search()" style="padding:10px;">분석</button> <button onclick="makePost()" style="padding:10px;">글 생성</button>
     <button onclick="copyAll()" style="padding:10px;">전체 복사</button>
 
     <div style="margin-top:10px;">
