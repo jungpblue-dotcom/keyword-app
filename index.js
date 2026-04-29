@@ -167,3 +167,22 @@ window.copyAll = function () {
   items.forEach(i => text += i.innerText + "\n");
   navigator.clipboard.writeText(text);
 };
+
+
+window.makePost = async function () {
+  const q = document.getElementById("q").value;
+
+  document.getElementById("result").innerHTML = "글 생성 중...";
+
+  try {
+    const post = await generatePost(q);
+
+    document.getElementById("result").innerHTML = `
+      <textarea style="width:100%; height:400px; padding:10px;">${post}</textarea>
+      <br/><br/>
+      <button onclick="copyPost()">전체 복사</button>
+    `;
+  } catch (e) {
+    document.getElementById("result").innerHTML = "에러 발생 😢";
+  }
+};
