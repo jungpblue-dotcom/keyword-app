@@ -2,8 +2,9 @@ document.body.innerHTML = `
   <div style="font-family:sans-serif; max-width:700px; margin:auto; padding:20px;">
     <h2>💰 키워드 생성기</h2>
 
-    <input id="q" placeholder="예: 치매" style="padding:10px; width:60%;" />
-    <button onclick="search()" style="padding:10px;">분석</button> <button onclick="makePost()" style="padding:10px;">글 생성</button>
+    <input id="q" placeholder="예: 치매 초기 증상" style="padding:10px; width:60%;" />
+    <button onclick="search()" style="padding:10px;">분석</button>
+    <button onclick="makePost()" style="padding:10px;">글 생성</button>
     <button onclick="copyAll()" style="padding:10px;">전체 복사</button>
 
     <div style="margin-top:10px;">
@@ -21,7 +22,7 @@ document.getElementById("q").addEventListener("keypress", function(e) {
   if (e.key === "Enter") search();
 });
 
-// 자동완성 (안정 버전)
+// 자동완성
 async function getAutoKeywords(seed) {
   try {
     const res = await fetch(`https://api.datamuse.com/words?ml=${seed}`);
@@ -32,27 +33,22 @@ async function getAutoKeywords(seed) {
   }
 }
 
-// 점수
+// 점수 시스템
 function makeResult(k) {
   let score = 0;
 
-  // 🔥 강한 검색 의도
   if (k.includes("초기")) score += 5;
   if (k.includes("증상")) score += 4;
   if (k.includes("원인")) score += 4;
   if (k.includes("이유")) score += 4;
 
-  // 🔥 행동 유도 (클릭 잘됨)
   if (k.includes("방법")) score += 4;
   if (k.includes("치료")) score += 4;
   if (k.includes("해결")) score += 4;
 
-  // 🔥 공포/경고 (CTR 높음)
   if (k.includes("위험")) score += 5;
   if (k.includes("방치")) score += 5;
-  if (k.includes("무서운")) score += 5;
 
-  // 🔥 구체성
   if (k.length >= 10) score += 2;
 
   let tag = "일반 키워드";
@@ -62,71 +58,46 @@ function makeResult(k) {
   return { keyword: k, score, tag };
 }
 
-
-
-
-
-// 기본 키워드
+// 키워드 생성 (중복 제거 포함)
 function generateKeywords(seed) {
   let results = [];
 
-  if (!seed.includes("증상")) {
-    results.push(`${seed} 증상`);
-  }
-
-  if (!seed.includes("원인")) {
-    results.push(`${seed} 원인`);
-  }
-
-  if (!seed.includes("치료")) {
-    results.push(`${seed} 치료 방법`);
-  }
-
-  if (!seed.includes("위험")) {
-    results.push(`${seed} 방치하면 위험`);
-  }
+  if (!seed.includes("증상")) results.push(`${seed} 증상`);
+  if (!seed.includes("원인")) results.push(`${seed} 원인`);
+  if (!seed.includes("치료")) results.push(`${seed} 치료 방법`);
+  if (!seed.includes("위험")) results.push(`${seed} 방치하면 위험`);
 
   return results.map(makeResult);
 }
 
-
-
+// 🔥 글 생성 (안정 버전)
 async function generatePost(keyword) {
-  const apiKey = "여기에_API_KEY_넣기";
+  return `
+[제목 후보]
+1. ${keyword} 꼭 알아야 할 핵심 정보
+2. ${keyword} 지금 확인해야 하는 이유
+3. ${keyword} 방치하면 위험한 이유
 
-  const prompt = `
-  블로그 글 작성
+[소제목]
+1. ${keyword}이란 무엇인가
+2. 주요 원인
+3. 대표 증상
+4. 관리 및 예방 방법
 
-  주제: ${keyword}
+[본문]
+${keyword}은 많은 분들이 가볍게 넘기기 쉬운 문제지만, 실제로는 조기에 관리하지 않으면 큰 위험으로 이어질 수 있습니다.
 
-  조건:
-  - 40~60대 대상
-  - 네이버 블로그 스타일
-  - 제목 3개
-  - 소제목 4개
-  - 본문 1500자
-  - 쉽게 설명
-  - 마지막에 행동 유도 문장 포함
-  `;
+특히 중장년층에서는 초기 신호를 놓치기 쉽기 때문에 평소와 다른 변화가 있다면 반드시 체크해야 합니다.
 
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + apiKey
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }]
-    })
-  });
+대표적인 특징으로는 일상생활에서의 작은 불편함부터 시작됩니다. 이러한 증상은 시간이 지날수록 점점 심해질 수 있기 때문에 초기 대응이 매우 중요합니다.
 
-  const data = await res.json();
-  return data.choices[0].message.content;
+관리 방법으로는 생활 습관 개선과 정기적인 건강 체크가 필수입니다. 또한 무리한 자기 판단보다는 전문가 상담을 병행하는 것이 안전합니다.
+
+지금 바로 자신의 상태를 점검해 보시고, 작은 이상이라도 느껴진다면 미루지 말고 관리 시작해 보세요.
+`;
 }
 
-
-// 실행
+// 검색 실행
 window.search = async function () {
   const q = document.getElementById("q").value;
 
@@ -155,12 +126,12 @@ window.search = async function () {
   document.getElementById("result").innerHTML = html;
 };
 
-// 복사
+// 키워드 복사
 window.copyText = function (text) {
   navigator.clipboard.writeText(text);
 };
 
-// 전체 복사
+// 전체 키워드 복사
 window.copyAll = function () {
   const items = document.querySelectorAll("#result b");
   let text = "";
@@ -168,32 +139,24 @@ window.copyAll = function () {
   navigator.clipboard.writeText(text);
 };
 
-
+// 글 생성 실행
 window.makePost = async function () {
   const q = document.getElementById("q").value;
 
   document.getElementById("result").innerHTML = "글 생성 중...";
 
-  try {
-    const post = await generatePost(q);
+  const post = await generatePost(q);
 
-    document.getElementById("result").innerHTML = `
-      <textarea style="width:100%; height:400px; padding:10px;">${post}</textarea>
-      <br/><br/>
-      <button onclick="copyPost()">전체 복사</button>
-    `;
-  } 
-  
-catch (e) {
-  console.log(e);
-  document.getElementById("result").innerHTML = "에러: " + (e.message || JSON.stringify(e));
-}
-  
+  document.getElementById("result").innerHTML = `
+    <textarea style="width:100%; height:400px; padding:10px;">${post}</textarea>
+    <br/><br/>
+    <button onclick="copyPost()">전체 복사</button>
+  `;
 };
 
+// 글 복사
 window.copyPost = function () {
   const text = document.querySelector("textarea").value;
   navigator.clipboard.writeText(text);
   alert("글 복사 완료!");
 };
-
