@@ -182,9 +182,13 @@ window.makePost = async function () {
       <br/><br/>
       <button onclick="copyPost()">전체 복사</button>
     `;
-  } catch (e) {
-    document.getElementById("result").innerHTML = "에러 발생 😢";
-  }
+  } 
+  
+catch (e) {
+  console.log(e);
+  document.getElementById("result").innerHTML = "에러: " + (e.message || JSON.stringify(e));
+}
+  
 };
 
 window.copyPost = function () {
