@@ -186,3 +186,10 @@ window.makePost = async function () {
     document.getElementById("result").innerHTML = "에러 발생 😢";
   }
 };
+
+window.copyPost = function () {
+  const text = document.querySelector("textarea").value;
+  navigator.clipboard.writeText(text);
+  alert("글 복사 완료!");
+};
+
