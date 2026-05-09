@@ -70,6 +70,19 @@ function generateKeywords(seed) {
   return results.map(makeResult);
 }
 
+function cleanKeyword(k) {
+  return k
+    .replace("방치하면 위험", "")
+    .replace("위험", "")
+    .trim();
+}
+
+
+
+
+
+
+
 // 🔥 글 생성 (안정 버전)
 
 
